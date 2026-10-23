@@ -1,0 +1,41 @@
+services:
+  web:
+    image: php:8.3-apache
+    ports:
+      - "8080:80"
+    command: bash -c "docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground"
+    volumes:
+      - ./public:/var/www/html
+      - ./src:/var/www/src
+      - ./vendor:/var/www/vendor
+      - ./config.php:/var/www/config.php:ro
+      - ./php/custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.4
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tablon_anuncios
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dev
+
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+
+    environment:
+      PMA_HOST: db
+
+    ports:
+      - "8081:80"
+
+    depends_on:
+      - db
+
+volumes:
+  db_data:
